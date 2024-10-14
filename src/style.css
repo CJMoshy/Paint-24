@@ -36,6 +36,8 @@ h1 {
 }
 
 #app {
+  display: flex;
+  flex-direction: column;
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -75,9 +77,13 @@ button:focus-visible {
   }
 }
 
-.main-canvas{
+.main-canvas {
   background-color: white;
-  border: 3px solid black;
+  border: 4px solid black;
   border-radius: 20px;
-  box-shadow: 5px 10px #000000;
+  box-shadow: 10px 15px #000000;
+}
+
+.clear-btn {
+  margin-top: 20px;
 }
