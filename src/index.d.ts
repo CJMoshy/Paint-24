@@ -3,4 +3,9 @@ interface Point {
   y: number;
 }
 
-type Line = Point[];
+interface LineCommand {
+  points: Point[];
+  grow: (x: number, y: number) => void;
+  execute: () => void;
+}
+
