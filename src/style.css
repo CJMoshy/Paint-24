@@ -76,6 +76,7 @@ button:hover {
 }
 
 .main-canvas {
+  cursor: none;
   background-color: white;
   border: 5px solid black;
   border-radius: 20px;
