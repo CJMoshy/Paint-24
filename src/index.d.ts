@@ -3,19 +3,29 @@ interface Point {
   y: number;
 }
 
-interface LineCommand {
+interface Command {
+  execute: (ctx: CanvasRenderingContext2D) => void;
+}
+
+interface LineCommand extends Command {
   thickness: number | undefined;
   points: Point[];
   grow: (x: number, y: number) => void;
-  execute: () => void;
 }
 
-interface CursorCommand {
+interface CursorCommand extends Command {
   active: boolean;
   x: number;
   y: number;
-  sticker: boolean;
-  execute: (ctx: CanvasRenderingContext2D) => void;
+  sticker: {
+    cur: boolean;
+    id: string;
+  };
+}
+
+interface StickerCommand extends Command {
+  cords: Point;
+  id: string;
 }
 
 type UndoRedoCommand = (undo: boolean) => void;
