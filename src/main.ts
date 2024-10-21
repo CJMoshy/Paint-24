@@ -37,6 +37,9 @@ const set_thick_marker_button = document.createElement("button");
 set_thick_marker_button.className = "thick-btn";
 set_thick_marker_button.textContent = "thick";
 
+const add_sticker_button = document.createElement("button");
+add_sticker_button.textContent = "Add a sticker";
+
 const emoji_button_1 = document.createElement("button");
 emoji_button_1.className = "e-btn1";
 emoji_button_1.textContent = "👽";
@@ -56,6 +59,7 @@ app.append(undo_button);
 app.append(redo_button);
 app.append(set_thin_marker_button);
 app.append(set_thick_marker_button);
+app.append(add_sticker_button);
 app.append(emoji_button_1);
 app.append(emoji_button_2);
 app.append(emoji_button_3);
@@ -86,10 +90,12 @@ const current_sticker: StickerCommand = {
   cords: { x: 0, y: 0 },
   id: "",
   execute: function (ctx) {
+    ctx.fillStyle = "#000000";
     ctx.beginPath();
     ctx.font = "30px serif";
     ctx.fillText(this.id, this.cords.x, this.cords.y);
     ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
   },
 };
 
@@ -107,9 +113,11 @@ const pen: CursorCommand = {
       ctx.arc(this?.x, this?.y, ctx.lineWidth, 0, 2 * Math.PI);
     } else {
       ctx.font = "30px serif";
+      ctx.fillStyle = "#000000";
       ctx.fillText(this.sticker.id, this.x, this.y);
     }
     ctx.stroke();
+    ctx.fillStyle = "#FFFFFF";
   },
 };
 
@@ -122,6 +130,18 @@ const thin_line_width = 1.5;
 const thick_line_width = 4;
 ctx!.fillStyle = "white";
 ctx!.lineWidth = thin_line_width;
+
+const add_sticker: AddStickerCommand = () => {
+  const new_sticker = prompt("Add a sticker here", "") as string;
+  stickers.push(new_sticker);
+  const new_sticker_button = document.createElement("button");
+  new_sticker_button.addEventListener(
+    "click",
+    () => sticker_clicked(stickers.length - 1),
+  );
+  new_sticker_button.textContent = new_sticker;
+  app.append(new_sticker_button);
+};
 
 const sticker_clicked = (index: number) => {
   pen.sticker.id = stickers[index];
@@ -234,6 +254,7 @@ undo_button.addEventListener("click", () => handle_undo_redo(true));
 redo_button.addEventListener("click", () => handle_undo_redo(false));
 set_thin_marker_button.addEventListener("click", handle_thin_marker_toggle);
 set_thick_marker_button.addEventListener("click", handle_thick_marker_toggle);
+add_sticker_button.addEventListener("click", add_sticker);
 emoji_button_1.addEventListener("click", () => sticker_clicked(0));
 emoji_button_2.addEventListener("click", () => sticker_clicked(1));
 emoji_button_3.addEventListener("click", () => sticker_clicked(2));

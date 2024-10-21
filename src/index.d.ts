@@ -31,3 +31,4 @@ interface StickerCommand extends Command {
 type UndoRedoCommand = (undo: boolean) => void;
 type MarkerCommand = (thin: boolean) => void;
 type MouseMoveCommand = (ctx: CanvasRenderingContext2D) => void;
+type AddStickerCommand = () => void;
