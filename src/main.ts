@@ -56,16 +56,34 @@ set_marker_slider.type = "range";
 set_marker_slider.min = "1";
 set_marker_slider.max = "100";
 
+const set_color_slider = document.createElement("input");
+set_color_slider.id = "color-slider";
+set_color_slider.type = "range";
+set_color_slider.min = "1";
+set_color_slider.max = "360";
+
+const txt = document.createElement("p");
+txt.textContent = "Custom Size";
+txt.className = "slider-txt";
+const txt2 = document.createElement("p");
+txt2.textContent = "Custom Color";
+txt2.className = "color-txt";
+const sampler_div = document.createElement("div");
+sampler_div.className = "sampler-div";
+
+const reset_color_button = document.createElement('button')
+reset_color_button.textContent = 'reset color'
+reset_color_button.className = 'reset-color-button'
+
 const marker_size_continer = document.createElement("div");
 marker_size_continer.className = "marker-size-container";
 marker_size_continer.textContent = "Marker Presets";
 marker_size_continer.append(set_thin_marker_button);
 marker_size_continer.append(set_thick_marker_button);
-const txt = document.createElement("p");
-txt.textContent = "Custom Size";
-txt.className = "slider-txt";
 marker_size_continer.append(txt);
 marker_size_continer.append(set_marker_slider);
+marker_size_continer.append(txt2, set_color_slider, sampler_div);
+marker_size_continer.append(reset_color_button)
 
 const add_sticker_button = document.createElement("button");
 add_sticker_button.textContent = "Add Sticker";
@@ -105,6 +123,7 @@ app.append(main_container);
 /** DRAWING LOGIC */
 const current_line: LineCommand = {
   thickness: undefined,
+  color: "black",
   points: [],
   grow: function (x, y) {
     this?.points.push({ x: x, y: y });
@@ -112,7 +131,9 @@ const current_line: LineCommand = {
   execute: function (ctx) {
     if (this.points.length === 0) return;
     const tmp = ctx?.lineWidth;
+    const tmpC = ctx.strokeStyle;
     ctx!.lineWidth = this.thickness as number;
+    ctx!.strokeStyle = this.color as string;
     const [{ x, y }, ...rest] = this?.points;
     ctx?.beginPath();
     ctx?.moveTo(x, y);
@@ -121,6 +142,7 @@ const current_line: LineCommand = {
     }
     ctx?.stroke();
     ctx!.lineWidth = tmp as number;
+    ctx!.strokeStyle = tmpC;
   },
 };
 
@@ -173,12 +195,12 @@ main_ctx!.lineWidth = thin_line_width;
 /**
  * @function
  * loads saved stickers from local storage
- * if stickers exist, they are added to the 
- * sticker_sidebar element. 
+ * if stickers exist, they are added to the
+ * sticker_sidebar element.
  */
 const load_stickers = () => {
   const saved = localStorage.getItem("stickers");
-  if (saved){
+  if (saved) {
     const parsed = JSON.parse(saved);
     for (const p of parsed) {
       stickers.push(p);
@@ -225,7 +247,7 @@ const delete_sticker = () => {
 };
 
 /**
- * @function 
+ * @function
  * saves the sticker array to local storage
  * creates new allocation if not alreay in local storage
  * @param sticker stickers are strings lol
@@ -245,7 +267,6 @@ const save_to_local_storage = (sticker: Sticker) => {
 /**
  * @function
  * this is responsible for exporting the drawings made by the user
- * 
  */
 const handle_export = () => {
   const { export_ctx, export_canvas } = get_export_ctx_and_canvas();
@@ -259,7 +280,7 @@ const handle_export = () => {
 /**
  * @function
  * helper function for the expoert method that creates the new canvas
- * and associated rendering context. 
+ * and associated rendering context.
  */
 const get_export_ctx_and_canvas = () => {
   const export_canvas = document.createElement("canvas");
@@ -300,7 +321,7 @@ const add_sticker: AddStickerCommand = () => {
  * @function
  * helper for clicking on a sticker that deals with CSS classes.
  * More importantly, it sets the drawing tool to the sticker
- * @param s 
+ * @param s
  */
 const sticker_clicked = (s: HTMLButtonElement) => {
   document.querySelector(".current-marker")?.classList.remove("current-marker");
@@ -352,7 +373,7 @@ const mouse_clicked_on_canvas = () => {
 /**
  * @function
  * helper for finishing a line
- * saves lines or removes tooltip for 
+ * saves lines or removes tooltip for
  * drawing tool from canvas
  */
 const finish_line_handler = () => {
@@ -384,7 +405,7 @@ const handle_mouse_move = (e: MouseEvent) => {
 /**
  * @function
  * deals with toggling to thin marker
- * sets css propertys 
+ * sets css propertys
  * and calls helper to set line width
  */
 const handle_thin_marker_toggle = () => {
@@ -400,7 +421,7 @@ const handle_thin_marker_toggle = () => {
 /**
  * @function
  * deals with toggling to thick maker
- * sets css propertys 
+ * sets css propertys
  * and calls helper to set line width
  */
 const handle_thick_marker_toggle = () => {
@@ -425,6 +446,21 @@ const handle_marker_slider = () => {
     `Custom Size -> ${parsed}`;
 };
 
+const handle_color_slider = () => {
+  const val = document.getElementById("color-slider") as HTMLInputElement;
+  const hue = Number(val.value);
+  current_line.color = `hsl(${hue}, 100%, 50%)`;
+  const color_preview = document.querySelector(
+    ".sampler-div",
+  ) as HTMLDivElement;
+  color_preview.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+};
+
+const reset_color = () => {
+  const color_preview = document.querySelector('.sampler-div') as HTMLDivElement
+  color_preview.style.backgroundColor = 'black'
+  current_line.color = 'black'
+}
 /**
  * @function
  * handles undo and redo logic
@@ -446,7 +482,7 @@ const log_point = (e: MouseEvent) => {
 
 /**
  * @function
- * helper to wipe the canvas. 
+ * helper to wipe the canvas.
  * Also clears commands array, removing any previously drawn elements
  * local storage is not affected
  */
@@ -495,6 +531,8 @@ redo_button.addEventListener("click", () => handle_undo_redo(false));
 set_thin_marker_button.addEventListener("click", handle_thin_marker_toggle);
 set_thick_marker_button.addEventListener("click", handle_thick_marker_toggle);
 set_marker_slider.addEventListener("input", handle_marker_slider);
+set_color_slider.addEventListener("input", handle_color_slider);
+reset_color_button.addEventListener('click', reset_color)
 add_sticker_button.addEventListener("click", add_sticker);
 remove_sticker_button.addEventListener("click", delete_sticker);
 

@@ -9,6 +9,7 @@ interface Command {
 
 interface LineCommand extends Command {
   thickness: number | undefined;
+  color: string;
   points: Point[];
   grow: (x: number, y: number) => void;
 }

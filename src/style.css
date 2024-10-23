@@ -40,6 +40,7 @@ h1 {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  user-select: none;
 }
 
 button {
@@ -139,7 +140,7 @@ button:hover {
   min-width: 125px;
 }
 
-#marker-slider {
+#marker-slider, #color-slider {
   margin-left: 25px;
   margin-top: 10px;
   -webkit-appearance: none;
@@ -151,7 +152,7 @@ button:hover {
   outline: none;
 }
 
-#marker-slider::-webkit-slider-thumb {
+#marker-slider::-webkit-slider-thumb, #color-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   border-radius: 5%;
@@ -161,7 +162,7 @@ button:hover {
   cursor: pointer;
 }
 
-.slider-txt {
+.slider-txt, .color-txt {
   color: #535bf2;
   border-bottom: 2px solid;
 }
@@ -177,4 +178,18 @@ button:hover {
   margin-top: 10px;
   width: 75px;
   height: 20px;
+}
+
+.sampler-div {
+  margin-top: 10px;
+  align-self: center;
+  width: 25px;
+  height: 25px;
+  border: 2px solid #646cff;
+  background-color: black;
+}
+
+.reset-color-button{
+  align-self: center;
+  width: 120px;
 }
