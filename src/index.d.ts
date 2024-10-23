@@ -23,12 +23,13 @@ interface CursorCommand extends Command {
   };
 }
 
+type Sticker = string;
 interface StickerCommand extends Command {
   cords: Point;
-  id: string;
+  id: Sticker;
 }
 
 type UndoRedoCommand = (undo: boolean) => void;
-type MarkerCommand = (thin: boolean) => void;
+type MarkerCommand = (width: number) => void;
 type MouseMoveCommand = (ctx: CanvasRenderingContext2D) => void;
 type AddStickerCommand = () => void;

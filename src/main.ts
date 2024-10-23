@@ -44,40 +44,46 @@ undo_redo_container.append(redo_button);
 const set_thin_marker_button = document.createElement("button");
 set_thin_marker_button.className = "thin-btn";
 set_thin_marker_button.classList.add("current-marker");
-set_thin_marker_button.textContent = "thin";
+set_thin_marker_button.textContent = `thin (1.5)`;
 
 const set_thick_marker_button = document.createElement("button");
 set_thick_marker_button.className = "thick-btn";
-set_thick_marker_button.textContent = "thick";
+set_thick_marker_button.textContent = "thick (4.0)";
+
+const set_marker_slider = document.createElement("input");
+set_marker_slider.id = "marker-slider";
+set_marker_slider.type = "range";
+set_marker_slider.min = "1";
+set_marker_slider.max = "100";
 
 const marker_size_continer = document.createElement("div");
 marker_size_continer.className = "marker-size-container";
-marker_size_continer.textContent = "Marker Size";
+marker_size_continer.textContent = "Marker Presets";
 marker_size_continer.append(set_thin_marker_button);
 marker_size_continer.append(set_thick_marker_button);
+const txt = document.createElement("p");
+txt.textContent = "Custom Size";
+txt.className = "slider-txt";
+marker_size_continer.append(txt);
+marker_size_continer.append(set_marker_slider);
 
 const add_sticker_button = document.createElement("button");
-add_sticker_button.textContent = "Add a sticker";
+add_sticker_button.textContent = "Add Sticker";
 
-const sticker_button_1 = document.createElement("button");
-sticker_button_1.className = "e-btn1";
-sticker_button_1.textContent = "👽";
-
-const sticker_button_2 = document.createElement("button");
-sticker_button_2.className = "e-btn2";
-sticker_button_2.textContent = "👻";
-
-const sticker_button_3 = document.createElement("button");
-sticker_button_3.className = "e-btn3";
-sticker_button_3.textContent = "🎃";
-
+const cluster = document.createElement("div");
+cluster.className = "remove-sticker-container";
+const remove_sticker_input = document.createElement("input");
+remove_sticker_input.className = "remove-sticker-input";
+remove_sticker_input.type = "text";
+remove_sticker_input.placeholder = "remove..";
+const remove_sticker_button = document.createElement("button");
+remove_sticker_button.textContent = "rm";
+cluster.append(remove_sticker_input, remove_sticker_button);
 const sticker_sidebar = document.createElement("div");
 sticker_sidebar.className = "sticker-sidebar";
 sticker_sidebar.textContent = "Stickers";
 sticker_sidebar.append(add_sticker_button);
-sticker_sidebar.append(sticker_button_1);
-sticker_sidebar.append(sticker_button_2);
-sticker_sidebar.append(sticker_button_3);
+sticker_sidebar.append(cluster);
 
 const canvas_container = document.createElement("div");
 canvas_container.className = "canvas-container";
@@ -153,7 +159,7 @@ const pen: CursorCommand = {
   },
 };
 
-const stickers = ["👽", "👻", "🎃"];
+const stickers: Sticker[] = ["👽", "👻", "🎃"];
 const commands: Command[] = [];
 const redo_stack: Command[] = [];
 
@@ -164,6 +170,82 @@ const main_ctx = main_canvas.getContext("2d");
 main_ctx!.fillStyle = "white";
 main_ctx!.lineWidth = thin_line_width;
 
+/**
+ * @function
+ * loads saved stickers from local storage
+ * if stickers exist, they are added to the 
+ * sticker_sidebar element. 
+ */
+const load_stickers = () => {
+  const saved = localStorage.getItem("stickers");
+  if (!saved) return;
+  const parsed = JSON.parse(saved);
+  for (const p of parsed) {
+    stickers.push(p);
+  }
+
+  for (const s of stickers) {
+    const sticker = document.createElement("button");
+    sticker.textContent = s;
+    sticker.id = s;
+    sticker.addEventListener("click", () => sticker_clicked(sticker));
+    sticker_sidebar.append(sticker);
+  }
+};
+
+/**
+ * @function
+ * handles deletion logic for a given sticker.
+ * removes the sticker from the array of stickers
+ * and its associated button element in the dom
+ */
+const delete_sticker = () => {
+  const input = document.querySelector(
+    ".remove-sticker-input",
+  ) as HTMLInputElement;
+  if (!input.value) return;
+
+  const rm_sticker_index = stickers.findIndex((e) => e === input.value);
+  if (rm_sticker_index === -1) return;
+
+  stickers.splice(rm_sticker_index, 1);
+  sticker_sidebar.removeChild(
+    document.querySelector(`#${input.value}`) as HTMLButtonElement,
+  );
+  const saved = localStorage.getItem("stickers");
+  if (!saved) return;
+
+  const parsed = JSON.parse(saved);
+  const rm_saved_index = parsed.findIndex((e: string) => e === input.value);
+  if (rm_saved_index === -1) return;
+
+  parsed.splice(rm_saved_index, 1);
+  localStorage.setItem("stickers", JSON.stringify(parsed));
+};
+
+/**
+ * @function 
+ * saves the sticker array to local storage
+ * creates new allocation if not alreay in local storage
+ * @param sticker stickers are strings lol
+ */
+const save_to_local_storage = (sticker: Sticker) => {
+  const saved = localStorage.getItem("stickers");
+  if (!saved) {
+    const saved_stickers = [sticker];
+    localStorage.setItem("stickers", JSON.stringify(saved_stickers));
+  } else {
+    const parsed = JSON.parse(saved);
+    parsed.push(sticker);
+    localStorage.setItem("stickers", JSON.stringify(parsed));
+  }
+};
+
+/**
+ * @function
+ * this is responsible for exporting the drawings made by the user
+ * 
+ */
 const handle_export = () => {
   const { export_ctx, export_canvas } = get_export_ctx_and_canvas();
   draw(export_ctx as CanvasRenderingContext2D, export_canvas);
@@ -173,6 +255,11 @@ const handle_export = () => {
   anchor.click();
 };
 
+/**
+ * @function
+ * helper function for the expoert method that creates the new canvas
+ * and associated rendering context. 
+ */
 const get_export_ctx_and_canvas = () => {
   const export_canvas = document.createElement("canvas");
   export_canvas.width = 1024;
@@ -184,36 +271,61 @@ const get_export_ctx_and_canvas = () => {
   return { export_ctx, export_canvas };
 };
 
+/**
+ * @function
+ * Add a sticker to both the sticker array and the dom
+ * also saves to localstorage for persistance across sessions.
+ */
 const add_sticker: AddStickerCommand = () => {
   const new_sticker = prompt("Add a sticker here", "") as string;
+  if (new_sticker === undefined) return;
+  if (new_sticker === "") return;
+
   stickers.push(new_sticker);
+  save_to_local_storage(new_sticker);
   const new_sticker_button = document.createElement("button");
+  new_sticker_button.id = new_sticker;
   new_sticker_button.addEventListener(
     "click",
     () => {
-      sticker_clicked(stickers.length - 1, new_sticker_button);
+      sticker_clicked(new_sticker_button);
     },
   );
   new_sticker_button.textContent = new_sticker;
   sticker_sidebar.append(new_sticker_button);
 };
 
-const sticker_clicked = (index: number, s: HTMLButtonElement) => {
+/**
+ * @function
+ * helper for clicking on a sticker that deals with CSS classes.
+ * More importantly, it sets the drawing tool to the sticker
+ * @param s 
+ */
+const sticker_clicked = (s: HTMLButtonElement) => {
   document.querySelector(".current-marker")?.classList.remove("current-marker");
   document.querySelector(".current-sticker")?.classList.remove(
     "current-sticker",
   );
   s.classList.add("current-sticker");
-  pen.sticker.id = stickers[index];
+  pen.sticker.id = stickers[stickers.findIndex((e) => e === s.textContent)];
   pen.sticker.cur = true;
 };
 
-const set_marker_width: MarkerCommand = (thin: boolean) => {
-  thin
-    ? main_ctx!.lineWidth = thin_line_width
-    : main_ctx!.lineWidth = thick_line_width;
+/**
+ * @function
+ * @param number
+ * @command set marker width wrapper fn
+ */
+const set_marker_width: MarkerCommand = (width: number) => {
+  main_ctx!.lineWidth = width;
 };
 
+/**
+ * @function
+ * helper to 'place' the sticker
+ * pushes current sticker to commands array
+ * to be drawn in the next cycle
+ */
 const place_sticker = () => {
   current_sticker.cords.x = pen.x;
   current_sticker.cords.y = pen.y;
@@ -223,6 +335,11 @@ const place_sticker = () => {
   current_sticker.id = "";
 };
 
+/**
+ * @function
+ * helper for clicking on canvas that will delegate work
+ * to either sticker engine or line engine
+ */
 const mouse_clicked_on_canvas = () => {
   if (pen.sticker.cur) place_sticker();
   else {
@@ -231,6 +348,12 @@ const mouse_clicked_on_canvas = () => {
   }
 };
 
+/**
+ * @function
+ * helper for finishing a line
+ * saves lines or removes tooltip for 
+ * drawing tool from canvas
+ */
 const finish_line_handler = () => {
   if (!pen.active) {
     pen.x = NaN;
@@ -243,6 +366,11 @@ const finish_line_handler = () => {
   main_canvas.dispatchEvent(new Event("drawing-changed"));
 };
 
+/**
+ * @function
+ * handle mouse movement over the canvas
+ * @param e mouse event
+ */
 const handle_mouse_move = (e: MouseEvent) => {
   if (!pen.active) {
     main_canvas.dispatchEvent(new Event("tool-moved"));
@@ -252,6 +380,12 @@ const handle_mouse_move = (e: MouseEvent) => {
   log_point(e);
 };
 
+/**
+ * @function
+ * deals with toggling to thin marker
+ * sets css propertys 
+ * and calls helper to set line width
+ */
 const handle_thin_marker_toggle = () => {
   pen.sticker.cur = false;
   document.querySelector(".current-sticker")?.classList.remove(
@@ -259,9 +393,15 @@ const handle_thin_marker_toggle = () => {
   );
   set_thick_marker_button.classList.remove("current-marker");
   set_thin_marker_button.classList.add("current-marker");
-  set_marker_width(true);
+  set_marker_width(thin_line_width);
 };
 
+/**
+ * @function
+ * deals with toggling to thick maker
+ * sets css propertys 
+ * and calls helper to set line width
+ */
 const handle_thick_marker_toggle = () => {
   pen.sticker.cur = false;
   document.querySelector(".current-sticker")?.classList.remove(
@@ -269,9 +409,26 @@ const handle_thick_marker_toggle = () => {
   );
   set_thin_marker_button.classList.remove("current-marker");
   set_thick_marker_button.classList.add("current-marker");
-  set_marker_width(false);
+  set_marker_width(thick_line_width);
 };
 
+/**
+ * @function
+ * helper to set custom width on pen line based on input element drag
+ */
+const handle_marker_slider = () => {
+  const val = document.getElementById("marker-slider") as HTMLInputElement;
+  const parsed = parseInt(val.value) / 25; // largest size allowed is 4
+  set_marker_width(parsed);
+  document.querySelector(".slider-txt")!.textContent =
+    `Custom Size -> ${parsed}`;
+};
+
+/**
+ * @function
+ * handles undo and redo logic
+ * @param undo boolean representing wich command to execute
+ */
 const handle_undo_redo: UndoRedoCommand = (undo: boolean) => {
   if (undo && commands.length === 0) return;
   if (!undo && redo_stack.length === 0) return;
@@ -286,18 +443,31 @@ const log_point = (e: MouseEvent) => {
   main_canvas.dispatchEvent(new Event("drawing-changed"));
 };
 
-const draw = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  commands.forEach((e) => e.execute(ctx));
-  current_line.execute(ctx);
-  pen.execute(ctx);
-};
-
+/**
+ * @function
+ * helper to wipe the canvas. 
+ * Also clears commands array, removing any previously drawn elements
+ * local storage is not affected
+ */
 const clear_canvas = () => {
   main_ctx?.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   current_line.points = [];
   commands.length = 0;
   redo_stack.length = 0;
+};
+
+/**
+ * @function
+ * this is the main rendering function for the application.
+ * it delegates work to any active commands and
+ * @param ctx rendering context from canvas
+ * @param canvas html canvas element
+ */
+const draw = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  commands.forEach((e) => e.execute(ctx));
+  current_line.execute(ctx);
+  pen.execute(ctx);
 };
 
 /** REGISTER EVENTS TO THE CANVAS */
@@ -323,16 +493,9 @@ undo_button.addEventListener("click", () => handle_undo_redo(true));
 redo_button.addEventListener("click", () => handle_undo_redo(false));
 set_thin_marker_button.addEventListener("click", handle_thin_marker_toggle);
 set_thick_marker_button.addEventListener("click", handle_thick_marker_toggle);
+set_marker_slider.addEventListener("input", handle_marker_slider);
 add_sticker_button.addEventListener("click", add_sticker);
-sticker_button_1.addEventListener(
-  "click",
-  () => sticker_clicked(0, sticker_button_1),
-);
-sticker_button_2.addEventListener(
-  "click",
-  () => sticker_clicked(1, sticker_button_2),
-);
-sticker_button_3.addEventListener(
-  "click",
-  () => sticker_clicked(2, sticker_button_3),
-);
+remove_sticker_button.addEventListener("click", delete_sticker);
+
+/** LOAD STICKERS FROM STORAGE */
+document.addEventListener("DOMContentLoaded", load_stickers);

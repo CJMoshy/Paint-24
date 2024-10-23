@@ -43,6 +43,7 @@ h1 {
 }
 
 button {
+  color: gray;
   margin-top: 15px;
   margin-left: 10px;
   margin-right: 10px;
@@ -60,6 +61,7 @@ button {
 
 button:hover {
   border-color: #f0f0f1;
+  color: white;
 }
 
 @media (prefers-color-scheme: light) {
@@ -112,6 +114,7 @@ button:hover {
   margin-bottom: 20px;
 }
 .marker-size-container {
+  color: #535bf2;
   width: 175px;
   border-radius: 5%;
   background-color: black;
@@ -120,7 +123,12 @@ button:hover {
   flex-direction: column;
 }
 .sticker-sidebar {
+  color: #535bf2;
+  direction: rtl;
+  overflow-x: hidden;
+  overflow-y: scroll;
   width: 175px;
+  max-height: 425px;
   border-radius: 5%;
   background-color: black;
   margin-left: 20px;
@@ -129,4 +137,44 @@ button:hover {
 }
 .clear-btn, .export-button, .undo-btn, .redo-btn {
   min-width: 125px;
+}
+
+#marker-slider {
+  margin-left: 25px;
+  margin-top: 10px;
+  -webkit-appearance: none;
+  width: 125px;
+  height: 25px;
+  border: 2px solid orange;
+  border-radius: 10%;
+  background: #d3d3d3;
+  outline: none;
+}
+
+#marker-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 5%;
+  width: 22px;
+  height: 22px;
+  background: #4b7ecc;
+  cursor: pointer;
+}
+
+.slider-txt {
+  color: #535bf2;
+  border-bottom: 2px solid;
+}
+
+.remove-sticker-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.remove-sticker-input {
+  border-color: #646cff;
+  margin-top: 10px;
+  width: 75px;
+  height: 20px;
 }
