@@ -178,10 +178,11 @@ main_ctx!.lineWidth = thin_line_width;
  */
 const load_stickers = () => {
   const saved = localStorage.getItem("stickers");
-  if (!saved) return;
-  const parsed = JSON.parse(saved);
-  for (const p of parsed) {
-    stickers.push(p);
+  if (saved){
+    const parsed = JSON.parse(saved);
+    for (const p of parsed) {
+      stickers.push(p);
+    }
   }
 
   for (const s of stickers) {
