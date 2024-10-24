@@ -71,9 +71,9 @@ txt2.className = "color-txt";
 const sampler_div = document.createElement("div");
 sampler_div.className = "sampler-div";
 
-const reset_color_button = document.createElement('button')
-reset_color_button.textContent = 'reset color'
-reset_color_button.className = 'reset-color-button'
+const reset_color_button = document.createElement("button");
+reset_color_button.textContent = "reset color";
+reset_color_button.className = "reset-color-button";
 
 const marker_size_continer = document.createElement("div");
 marker_size_continer.className = "marker-size-container";
@@ -83,7 +83,7 @@ marker_size_continer.append(set_thick_marker_button);
 marker_size_continer.append(txt);
 marker_size_continer.append(set_marker_slider);
 marker_size_continer.append(txt2, set_color_slider, sampler_div);
-marker_size_continer.append(reset_color_button)
+marker_size_continer.append(reset_color_button);
 
 const add_sticker_button = document.createElement("button");
 add_sticker_button.textContent = "Add Sticker";
@@ -446,6 +446,11 @@ const handle_marker_slider = () => {
     `Custom Size -> ${parsed}`;
 };
 
+/**
+ * @function
+ * gets current slider value from color slider
+ * sets the color to the current drawing line
+ */
 const handle_color_slider = () => {
   const val = document.getElementById("color-slider") as HTMLInputElement;
   const hue = Number(val.value);
@@ -456,11 +461,18 @@ const handle_color_slider = () => {
   color_preview.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
 };
 
+/**
+ * @function
+ * helper that resets the drawing color to black
+ */
 const reset_color = () => {
-  const color_preview = document.querySelector('.sampler-div') as HTMLDivElement
-  color_preview.style.backgroundColor = 'black'
-  current_line.color = 'black'
-}
+  const color_preview = document.querySelector(
+    ".sampler-div",
+  ) as HTMLDivElement;
+  color_preview.style.backgroundColor = "black";
+  current_line.color = "black";
+};
+
 /**
  * @function
  * handles undo and redo logic
@@ -474,6 +486,11 @@ const handle_undo_redo: UndoRedoCommand = (undo: boolean) => {
   main_canvas.dispatchEvent(new Event("drawing-changed"));
 };
 
+/**
+ * @function
+ * log the current point the pen is at if in drawing state
+ * @param e MouseEvent
+ */
 const log_point = (e: MouseEvent) => {
   if (!pen.active) return;
   current_line.grow(e.offsetX, e.offsetY);
@@ -532,7 +549,7 @@ set_thin_marker_button.addEventListener("click", handle_thin_marker_toggle);
 set_thick_marker_button.addEventListener("click", handle_thick_marker_toggle);
 set_marker_slider.addEventListener("input", handle_marker_slider);
 set_color_slider.addEventListener("input", handle_color_slider);
-reset_color_button.addEventListener('click', reset_color)
+reset_color_button.addEventListener("click", reset_color);
 add_sticker_button.addEventListener("click", add_sticker);
 remove_sticker_button.addEventListener("click", delete_sticker);
 
