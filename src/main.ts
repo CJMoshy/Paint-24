@@ -122,27 +122,25 @@ app.append(main_container);
 
 /** DRAWING LOGIC */
 const current_line: LineCommand = {
-  thickness: undefined,
+  thickness: 0,
   color: "black",
   points: [],
   grow: function (x, y) {
-    this?.points.push({ x: x, y: y });
+    this.points.push({ x, y });
   },
   execute: function (ctx) {
     if (this.points.length === 0) return;
-    const tmp = ctx?.lineWidth;
-    const tmpC = ctx.strokeStyle;
-    ctx!.lineWidth = this.thickness as number;
-    ctx!.strokeStyle = this.color as string;
-    const [{ x, y }, ...rest] = this?.points;
-    ctx?.beginPath();
-    ctx?.moveTo(x, y);
+    ctx.save();
+    ctx.lineWidth = this.thickness;
+    ctx.strokeStyle = this.color;
+    const [{ x, y }, ...rest] = this.points;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
     for (const { x, y } of rest) {
-      ctx?.lineTo(x, y);
+      ctx.lineTo(x, y);
     }
-    ctx?.stroke();
-    ctx!.lineWidth = tmp as number;
-    ctx!.strokeStyle = tmpC;
+    ctx.stroke();
+    ctx.restore();
   },
 };
 
@@ -164,13 +162,13 @@ const pen: CursorCommand = {
   x: 0,
   y: 0,
   sticker: {
-    cur: false,
+    current: false,
     id: "",
   },
   execute: function (ctx: CanvasRenderingContext2D) {
     ctx.beginPath();
-    if (!this.sticker.cur) {
-      ctx.arc(this?.x, this?.y, ctx.lineWidth, 0, 2 * Math.PI);
+    if (!this.sticker.current) {
+      ctx.arc(this.x, this.y, ctx.lineWidth, 0, 2 * Math.PI);
     } else {
       ctx.font = "30px serif";
       ctx.fillStyle = "#000000";
@@ -188,9 +186,9 @@ const redo_stack: Command[] = [];
 const export_scale_factor = 4;
 const thin_line_width = 1.5;
 const thick_line_width = 4;
-const main_ctx = main_canvas.getContext("2d");
-main_ctx!.fillStyle = "white";
-main_ctx!.lineWidth = thin_line_width;
+const main_ctx = main_canvas.getContext("2d")!;
+main_ctx.fillStyle = "white";
+main_ctx.lineWidth = thin_line_width;
 
 /**
  * @function
@@ -223,23 +221,25 @@ const load_stickers = () => {
  * and its associated button element in the dom
  */
 const delete_sticker = () => {
-  const input = document.querySelector(
+  const input = document.querySelector<HTMLInputElement>(
     ".remove-sticker-input",
-  ) as HTMLInputElement;
-  if (!input.value) return;
+  )!;
+  if (!input.value) {
+    return;
+  }
 
   const rm_sticker_index = stickers.findIndex((e) => e === input.value);
   if (rm_sticker_index === -1) return;
 
   stickers.splice(rm_sticker_index, 1);
   sticker_sidebar.removeChild(
-    document.querySelector(`#${input.value}`) as HTMLButtonElement,
+    document.querySelector<HTMLButtonElement>(`#${input.value}`)!,
   );
   const saved = localStorage.getItem("stickers");
   if (!saved) return;
 
-  const parsed = JSON.parse(saved);
-  const rm_saved_index = parsed.findIndex((e: string) => e === input.value);
+  const parsed = JSON.parse(saved) as string[];
+  const rm_saved_index = parsed.findIndex((e) => e === input.value);
   if (rm_saved_index === -1) return;
 
   parsed.splice(rm_saved_index, 1);
@@ -266,19 +266,6 @@ const save_to_local_storage = (sticker: Sticker) => {
 
 /**
  * @function
- * this is responsible for exporting the drawings made by the user
- */
-const handle_export = () => {
-  const { export_ctx, export_canvas } = get_export_ctx_and_canvas();
-  draw(export_ctx as CanvasRenderingContext2D, export_canvas);
-  const anchor = document.createElement("a");
-  anchor.href = export_canvas.toDataURL("image/png");
-  anchor.download = "sketchpad.png";
-  anchor.click();
-};
-
-/**
- * @function
  * helper function for the expoert method that creates the new canvas
  * and associated rendering context.
  */
@@ -286,10 +273,10 @@ const get_export_ctx_and_canvas = () => {
   const export_canvas = document.createElement("canvas");
   export_canvas.width = 1024;
   export_canvas.height = 1024;
-  const export_ctx = export_canvas.getContext("2d");
-  export_ctx!.fillStyle = "white";
-  export_ctx?.scale(export_scale_factor, export_scale_factor);
-  export_ctx?.fillRect(0, 0, export_canvas.width, export_canvas.height);
+  const export_ctx = export_canvas.getContext("2d")!;
+  export_ctx.fillStyle = "white";
+  export_ctx.scale(export_scale_factor, export_scale_factor);
+  export_ctx.fillRect(0, 0, export_canvas.width, export_canvas.height);
   return { export_ctx, export_canvas };
 };
 
@@ -299,9 +286,10 @@ const get_export_ctx_and_canvas = () => {
  * also saves to localstorage for persistance across sessions.
  */
 const add_sticker: AddStickerCommand = () => {
-  const new_sticker = prompt("Add a sticker here", "") as string;
-  if (new_sticker === undefined) return;
-  if (new_sticker === "") return;
+  const new_sticker = prompt("Add a sticker here", "")!;
+  if (new_sticker === "") {
+    return;
+  }
 
   stickers.push(new_sticker);
   save_to_local_storage(new_sticker);
@@ -324,13 +312,13 @@ const add_sticker: AddStickerCommand = () => {
  * @param s
  */
 const sticker_clicked = (s: HTMLButtonElement) => {
-  document.querySelector(".current-marker")?.classList.remove("current-marker");
-  document.querySelector(".current-sticker")?.classList.remove(
+  document.querySelector(".current-marker")!.classList.remove("current-marker");
+  document.querySelector(".current-sticker")!.classList.remove(
     "current-sticker",
   );
   s.classList.add("current-sticker");
   pen.sticker.id = stickers[stickers.findIndex((e) => e === s.textContent)];
-  pen.sticker.cur = true;
+  pen.sticker.current = true;
 };
 
 /**
@@ -363,7 +351,7 @@ const place_sticker = () => {
  * to either sticker engine or line engine
  */
 const mouse_clicked_on_canvas = () => {
-  if (pen.sticker.cur) place_sticker();
+  if (pen.sticker.current) place_sticker();
   else {
     current_line.thickness = main_ctx?.lineWidth;
     pen.active = true;
@@ -409,7 +397,7 @@ const handle_mouse_move = (e: MouseEvent) => {
  * and calls helper to set line width
  */
 const handle_thin_marker_toggle = () => {
-  pen.sticker.cur = false;
+  pen.sticker.current = false;
   document.querySelector(".current-sticker")?.classList.remove(
     "current-sticker",
   );
@@ -425,7 +413,7 @@ const handle_thin_marker_toggle = () => {
  * and calls helper to set line width
  */
 const handle_thick_marker_toggle = () => {
-  pen.sticker.cur = false;
+  pen.sticker.current = false;
   document.querySelector(".current-sticker")?.classList.remove(
     "current-sticker",
   );
@@ -476,13 +464,13 @@ const reset_color = () => {
 /**
  * @function
  * handles undo and redo logic
- * @param undo boolean representing wich command to execute
+ * @param undo boolean representing which command to execute
  */
-const handle_undo_redo: UndoRedoCommand = (undo: boolean) => {
-  if (undo && commands.length === 0) return;
-  if (!undo && redo_stack.length === 0) return;
-  if (undo) redo_stack.push(commands.pop() as LineCommand);
-  else commands.push(redo_stack.pop() as LineCommand);
+const handle_undo_redo: UndoRedoCommand = (shouldUndo: boolean) => {
+  if (shouldUndo && commands.length === 0) return;
+  if (!shouldUndo && redo_stack.length === 0) return;
+  if (shouldUndo) redo_stack.push(commands.pop()!);
+  else commands.push(redo_stack.pop()!);
   main_canvas.dispatchEvent(new Event("drawing-changed"));
 };
 
@@ -504,7 +492,7 @@ const log_point = (e: MouseEvent) => {
  * local storage is not affected
  */
 const clear_canvas = () => {
-  main_ctx?.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  main_ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   current_line.points = [];
   commands.length = 0;
   redo_stack.length = 0;
@@ -541,7 +529,15 @@ main_canvas.addEventListener(
 );
 
 /** REGISTER EVENTS FOR BUTTONS */
-export_button.addEventListener("click", handle_export);
+export_button.addEventListener("click", () => {
+  const { export_ctx, export_canvas } = get_export_ctx_and_canvas();
+  draw(export_ctx, export_canvas);
+  const anchor = document.createElement("a");
+  anchor.href = export_canvas.toDataURL("image/png");
+  anchor.download = "sketchpad.png";
+  anchor.click();
+});
+
 clear_button.addEventListener("click", clear_canvas);
 undo_button.addEventListener("click", () => handle_undo_redo(true));
 redo_button.addEventListener("click", () => handle_undo_redo(false));

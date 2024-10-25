@@ -8,7 +8,7 @@ interface Command {
 }
 
 interface LineCommand extends Command {
-  thickness: number | undefined;
+  thickness: number;
   color: string;
   points: Point[];
   grow: (x: number, y: number) => void;
@@ -19,7 +19,7 @@ interface CursorCommand extends Command {
   x: number;
   y: number;
   sticker: {
-    cur: boolean;
+    current: boolean;
     id: string;
   };
 }
