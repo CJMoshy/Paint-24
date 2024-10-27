@@ -114,12 +114,12 @@ const get_export_ctx_and_canvas = () => {
  * @param s
  */
 const sticker_clicked = (s: HTMLButtonElement) => {
-  // console.log(s);
-  // document.querySelector<HTMLButtonElement>(".current-marker")!.classList.remove("current-marker");
-  // document.querySelector<HTMLButtonElement>(".current-sticker")!.classList.remove(
-  //   "current-sticker",
-  // );
-  // s.classList.add("current-sticker");
+
+  const current_sticker = document.querySelector<HTMLButtonElement>(".current-sticker")
+  if(current_sticker){
+    current_sticker.classList.remove('current-sticker')
+  }
+  s.classList.add("current-sticker");
   pen.sticker.id = stickers[stickers.findIndex((e) => e === s.textContent)];
   pen.sticker.current = true;
 };
