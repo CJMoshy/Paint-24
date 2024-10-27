@@ -94,6 +94,7 @@ button:hover {
   display: flex;
   flex-direction: row;
 }
+
 .canvas-container {
   margin-top: 2px;
   margin-bottom: 2px;
@@ -109,12 +110,13 @@ button:hover {
   border: 1px solid rgb(101, 101, 182);
 }
 
-.undo-redo-container {
-  display: flex;
-  justify-content: left;
+.bottom-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   margin-bottom: 20px;
 }
-.marker-size-container {
+
+.marker-container {
   color: #535bf2;
   width: 175px;
   border-radius: 5%;
@@ -123,7 +125,8 @@ button:hover {
   display: flex;
   flex-direction: column;
 }
-.sticker-sidebar {
+
+.sticker-container {
   color: #535bf2;
   direction: rtl;
   overflow-x: hidden;
