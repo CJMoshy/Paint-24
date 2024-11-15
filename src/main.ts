@@ -16,64 +16,47 @@ main_canvas.width = CANVAS_WIDTH;
 main_canvas.height = CANVAS_HEIGHT;
 main_canvas.className = "main-canvas";
 
-const clear_button = document.createElement("button");
-clear_button.className = "clear-btn";
-clear_button.textContent = "clear";
-
-const export_button = document.createElement("button");
-export_button.className = "export-button";
-export_button.textContent = "export";
+const clear_button = createHTMLElement("button", "clear-btn", "clear");
+const export_button = createHTMLElement("button", "export-btn", "export");
 
 const bottom_container = document.createElement("div");
 bottom_container.append(clear_button);
 bottom_container.append(export_button);
 
-const undo_button = document.createElement("button");
-undo_button.className = "undo-btn";
-undo_button.textContent = "undo";
-
-const redo_button = document.createElement("button");
-redo_button.className = "redo-btn";
-redo_button.textContent = "redo";
+const undo_button = createHTMLElement("button", "undo-btn", "clear");
+const redo_button = createHTMLElement("button", "redo-btn", "redo");
 
 const undo_redo_container = document.createElement("div");
 undo_redo_container.className = "undo-redo-container";
 undo_redo_container.append(undo_button);
 undo_redo_container.append(redo_button);
 
-const set_thin_marker_button = document.createElement("button");
-set_thin_marker_button.className = "thin-btn";
+const set_thin_marker_button = createHTMLElement(
+  "button",
+  "thin-btn",
+  `thin (1.5)`,
+);
 set_thin_marker_button.classList.add("current-marker");
-set_thin_marker_button.textContent = `thin (1.5)`;
 
-const set_thick_marker_button = document.createElement("button");
-set_thick_marker_button.className = "thick-btn";
-set_thick_marker_button.textContent = "thick (4.0)";
+const set_thick_marker_button = createHTMLElement(
+  "button",
+  "thick-btn",
+  `thick (4.0)`,
+);
 
-const set_marker_slider = document.createElement("input");
-set_marker_slider.id = "marker-slider";
-set_marker_slider.type = "range";
-set_marker_slider.min = "1";
-set_marker_slider.max = "100";
+const set_marker_slider = sliderCreate("marker-slider", "range", "1", "100");
+const set_color_slider = sliderCreate("color-slider", "range", "1", "360");
 
-const set_color_slider = document.createElement("input");
-set_color_slider.id = "color-slider";
-set_color_slider.type = "range";
-set_color_slider.min = "1";
-set_color_slider.max = "360";
-
-const txt = document.createElement("p");
-txt.textContent = "Custom Size";
-txt.className = "slider-txt";
-const txt2 = document.createElement("p");
-txt2.textContent = "Custom Color";
-txt2.className = "color-txt";
+const txt = createHTMLElement("p", "slider-txt", "Custom Size");
+const txt2 = createHTMLElement("p", "color-txt", "Custom Color");
 const sampler_div = document.createElement("div");
 sampler_div.className = "sampler-div";
 
-const reset_color_button = document.createElement("button");
-reset_color_button.textContent = "reset color";
-reset_color_button.className = "reset-color-button";
+const reset_color_button = createHTMLElement(
+  "button",
+  "reset-color-button",
+  "reset color",
+);
 
 const marker_size_continer = document.createElement("div");
 marker_size_continer.className = "marker-size-container";
@@ -539,6 +522,32 @@ main_canvas.addEventListener(
   "tool-moved",
   () => draw(main_ctx as CanvasRenderingContext2D, main_canvas),
 );
+
+/** HTML Element Creators */
+function createHTMLElement(
+  element: string,
+  className: string,
+  textContent: string,
+) {
+  const newButton = document.createElement(element);
+  newButton.className = className;
+  newButton.textContent = textContent;
+  return newButton;
+}
+
+function sliderCreate(
+  id: string,
+  type: string,
+  min: string,
+  max: string,
+): HTMLInputElement {
+  const newInput = document.createElement("input");
+  newInput.id = id;
+  newInput.type = type;
+  newInput.min = min;
+  newInput.max = max;
+  return newInput;
+}
 
 /** REGISTER EVENTS FOR BUTTONS */
 export_button.addEventListener("click", handle_export);

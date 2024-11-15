@@ -136,7 +136,7 @@ button:hover {
   display: flex;
   flex-direction: column;
 }
-.clear-btn, .export-button, .undo-btn, .redo-btn {
+.clear-btn, .export-btn, .undo-btn, .redo-btn {
   min-width: 125px;
 }
 
