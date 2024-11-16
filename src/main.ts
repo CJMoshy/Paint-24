@@ -61,10 +61,12 @@ const reset_color_button = createHTMLElement(
 const marker_size_continer = document.createElement("div");
 marker_size_continer.className = "marker-size-container";
 marker_size_continer.textContent = "Marker Presets";
-marker_size_continer.append(set_thin_marker_button);
-marker_size_continer.append(set_thick_marker_button);
-marker_size_continer.append(txt);
-marker_size_continer.append(set_marker_slider);
+marker_size_continer.append(
+  set_thin_marker_button,
+  set_thick_marker_button,
+  txt,
+  set_marker_slider,
+);
 marker_size_continer.append(txt2, set_color_slider, sampler_div);
 marker_size_continer.append(reset_color_button);
 
@@ -83,25 +85,18 @@ cluster.append(remove_sticker_input, remove_sticker_button);
 const sticker_sidebar = document.createElement("div");
 sticker_sidebar.className = "sticker-sidebar";
 sticker_sidebar.textContent = "Stickers";
-sticker_sidebar.append(add_sticker_button);
-sticker_sidebar.append(cluster);
+sticker_sidebar.append(add_sticker_button, cluster);
 
 const canvas_container = document.createElement("div");
 canvas_container.className = "canvas-container";
 
-canvas_container.append(main_canvas);
-canvas_container.append(bottom_container);
-canvas_container.append(undo_redo_container);
+canvas_container.append(main_canvas, bottom_container, undo_redo_container);
 
 const main_container = document.createElement("div");
 main_container.className = "main-container";
 
-main_container.append(marker_size_continer);
-main_container.append(canvas_container);
-main_container.append(sticker_sidebar);
-
-app.append(title);
-app.append(main_container);
+main_container.append(marker_size_continer, canvas_container, sticker_sidebar);
+app.append(title, main_container);
 
 /** DRAWING LOGIC */
 const current_line: LineCommand = {
@@ -388,33 +383,21 @@ const handle_mouse_move = (e: MouseEvent) => {
 /**
  * @function
  * deals with toggling to thin marker
- * sets css propertys
+ * sets css properties
  * and calls helper to set line width
  */
 const handle_thin_marker_toggle = () => {
-  pen.sticker.cur = false;
-  document.querySelector(".current-sticker")?.classList.remove(
-    "current-sticker",
-  );
-  set_thick_marker_button.classList.remove("current-marker");
-  set_thin_marker_button.classList.add("current-marker");
-  set_marker_width(thin_line_width);
+  switchMarkerWidth("thin");
 };
 
 /**
  * @function
  * deals with toggling to thick maker
- * sets css propertys
+ * sets css properties
  * and calls helper to set line width
  */
 const handle_thick_marker_toggle = () => {
-  pen.sticker.cur = false;
-  document.querySelector(".current-sticker")?.classList.remove(
-    "current-sticker",
-  );
-  set_thin_marker_button.classList.remove("current-marker");
-  set_thick_marker_button.classList.add("current-marker");
-  set_marker_width(thick_line_width);
+  switchMarkerWidth("thick");
 };
 
 /**
@@ -523,6 +506,20 @@ main_canvas.addEventListener(
   () => draw(main_ctx as CanvasRenderingContext2D, main_canvas),
 );
 
+function switchMarkerWidth(width: string) {
+  pen.sticker.cur = false;
+  document.querySelector(".current-sticker")?.classList.remove(
+    "current-sticker",
+  );
+  set_thin_marker_button.classList.remove("current-marker");
+  set_thick_marker_button.classList.add("current-marker");
+  if (width == "thick") {
+    set_marker_width(thick_line_width);
+  } else if (width == "thin") {
+    set_marker_width(thin_line_width);
+  }
+}
+
 /** HTML Element Creators */
 function createHTMLElement(
   element: string,
@@ -550,17 +547,56 @@ function sliderCreate(
 }
 
 /** REGISTER EVENTS FOR BUTTONS */
-export_button.addEventListener("click", handle_export);
-clear_button.addEventListener("click", clear_canvas);
-undo_button.addEventListener("click", () => handle_undo_redo(true));
-redo_button.addEventListener("click", () => handle_undo_redo(false));
-set_thin_marker_button.addEventListener("click", handle_thin_marker_toggle);
-set_thick_marker_button.addEventListener("click", handle_thick_marker_toggle);
-set_marker_slider.addEventListener("input", handle_marker_slider);
-set_color_slider.addEventListener("input", handle_color_slider);
-reset_color_button.addEventListener("click", reset_color);
-add_sticker_button.addEventListener("click", add_sticker);
-remove_sticker_button.addEventListener("click", delete_sticker);
+// Helper function to add event listeners
+function attachEventListeners(eventConfig: ButtonEventConfig[]) {
+  eventConfig.forEach(({ element, eventType, handler }) => {
+    element.addEventListener(eventType, handler);
+  });
+}
+
+const buttonEvents: ButtonEventConfig[] = [
+  { element: export_button, eventType: "click", handler: handle_export },
+  { element: clear_button, eventType: "click", handler: clear_canvas },
+  {
+    element: undo_button,
+    eventType: "click",
+    handler: () => handle_undo_redo(true),
+  },
+  {
+    element: redo_button,
+    eventType: "click",
+    handler: () => handle_undo_redo(false),
+  },
+  {
+    element: set_thin_marker_button,
+    eventType: "click",
+    handler: handle_thin_marker_toggle,
+  },
+  {
+    element: set_thick_marker_button,
+    eventType: "click",
+    handler: handle_thick_marker_toggle,
+  },
+  {
+    element: set_marker_slider,
+    eventType: "input",
+    handler: handle_marker_slider,
+  },
+  {
+    element: set_color_slider,
+    eventType: "input",
+    handler: handle_color_slider,
+  },
+  { element: reset_color_button, eventType: "click", handler: reset_color },
+  { element: add_sticker_button, eventType: "click", handler: add_sticker },
+  {
+    element: remove_sticker_button,
+    eventType: "click",
+    handler: delete_sticker,
+  },
+];
+
+attachEventListeners(buttonEvents);
 
 /** LOAD STICKERS FROM STORAGE */
 document.addEventListener("DOMContentLoaded", load_stickers);

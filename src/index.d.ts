@@ -34,3 +34,9 @@ type UndoRedoCommand = (undo: boolean) => void;
 type MarkerCommand = (width: number) => void;
 type MouseMoveCommand = (ctx: CanvasRenderingContext2D) => void;
 type AddStickerCommand = () => void;
+
+type ButtonEventConfig = {
+  element: HTMLElement;
+  eventType: keyof HTMLElementEventMap;
+  handler: EventListener;
+};
