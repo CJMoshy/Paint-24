@@ -288,32 +288,6 @@ document.getElementById("add-sticker")!.addEventListener("click", () => {
   document.getElementById('sticker-container')!.append(new_sticker_button);
 });
 
-// remove_sticker_button.addEventListener("click", () => {
-//   const input = document.querySelector<HTMLInputElement>(
-//     ".remove-sticker-input",
-//   )!;
-//   if (!input.value) {
-//     return;
-//   }
-
-//   const rm_sticker_index = stickers.findIndex((e) => e === input.value);
-//   if (rm_sticker_index === -1) return;
-
-//   stickers.splice(rm_sticker_index, 1);
-//   sticker_sidebar.removeChild(
-//     document.querySelector<HTMLButtonElement>(`#${input.value}`)!,
-//   );
-//   const saved = localStorage.getItem("stickers");
-//   if (!saved) return;
-
-//   const parsed = JSON.parse(saved) as string[];
-//   const rm_saved_index = parsed.findIndex((e) => e === input.value);
-//   if (rm_saved_index === -1) return;
-
-//   parsed.splice(rm_saved_index, 1);
-//   localStorage.setItem("stickers", JSON.stringify(parsed));
-// });
-
 /** LOAD STICKERS FROM STORAGE */
 document.addEventListener("DOMContentLoaded", () => {
   const saved = localStorage.getItem("stickers");
