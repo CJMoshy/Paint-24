@@ -46,6 +46,7 @@ const set_thick_marker_button = createHTMLElement(
 
 const set_marker_slider = sliderCreate("marker-slider", "range", "1", "100");
 const set_color_slider = sliderCreate("color-slider", "range", "1", "360");
+const set_lightness_slider = sliderCreate("lightness-slider", "range", "1", "100");
 
 const txt = createHTMLElement("p", "slider-txt", "Custom Size");
 const txt2 = createHTMLElement("p", "color-txt", "Custom Color");
@@ -67,7 +68,7 @@ marker_size_continer.append(
   txt,
   set_marker_slider,
 );
-marker_size_continer.append(txt2, set_color_slider, sampler_div);
+marker_size_continer.append(txt2, set_color_slider, set_lightness_slider, sampler_div);
 marker_size_continer.append(reset_color_button);
 
 const add_sticker_button = document.createElement("button");
@@ -419,12 +420,14 @@ const handle_marker_slider = () => {
  */
 const handle_color_slider = () => {
   const val = document.getElementById("color-slider") as HTMLInputElement;
+  const lightVal = document.getElementById("lightness-slider") as HTMLInputElement;
   const hue = Number(val.value);
-  current_line.color = `hsl(${hue}, 100%, 50%)`;
+  const lightness = Number(lightVal.value);
+  current_line.color = `hsl(${hue}, 100%, ${lightness}%)`;
   const color_preview = document.querySelector(
     ".sampler-div",
   ) as HTMLDivElement;
-  color_preview.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+  color_preview.style.backgroundColor = `hsl(${hue}, 100%, ${lightness}%)`;
 };
 
 /**
@@ -584,6 +587,11 @@ const buttonEvents: ButtonEventConfig[] = [
   },
   {
     element: set_color_slider,
+    eventType: "input",
+    handler: handle_color_slider,
+  },
+  {
+    element: set_lightness_slider,
     eventType: "input",
     handler: handle_color_slider,
   },

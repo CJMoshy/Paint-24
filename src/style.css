@@ -140,7 +140,7 @@ button:hover {
   min-width: 125px;
 }
 
-#marker-slider, #color-slider {
+#marker-slider, #color-slider, #lightness-slider {
   margin-left: 25px;
   margin-top: 10px;
   -webkit-appearance: none;
