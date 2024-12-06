@@ -23,7 +23,7 @@ const bottom_container = document.createElement("div");
 bottom_container.append(clear_button);
 bottom_container.append(export_button);
 
-const undo_button = createHTMLElement("button", "undo-btn", "clear");
+const undo_button = createHTMLElement("button", "undo-btn", "undo");
 const redo_button = createHTMLElement("button", "redo-btn", "redo");
 
 const undo_redo_container = document.createElement("div");
@@ -46,7 +46,12 @@ const set_thick_marker_button = createHTMLElement(
 
 const set_marker_slider = sliderCreate("marker-slider", "range", "1", "100");
 const set_color_slider = sliderCreate("color-slider", "range", "1", "360");
-const set_lightness_slider = sliderCreate("lightness-slider", "range", "1", "100");
+const set_lightness_slider = sliderCreate(
+  "lightness-slider",
+  "range",
+  "1",
+  "100",
+);
 
 const txt = createHTMLElement("p", "slider-txt", "Custom Size");
 const txt2 = createHTMLElement("p", "color-txt", "Custom Color");
@@ -68,7 +73,12 @@ marker_size_continer.append(
   txt,
   set_marker_slider,
 );
-marker_size_continer.append(txt2, set_color_slider, set_lightness_slider, sampler_div);
+marker_size_continer.append(
+  txt2,
+  set_color_slider,
+  set_lightness_slider,
+  sampler_div,
+);
 marker_size_continer.append(reset_color_button);
 
 const add_sticker_button = document.createElement("button");
@@ -420,7 +430,9 @@ const handle_marker_slider = () => {
  */
 const handle_color_slider = () => {
   const val = document.getElementById("color-slider") as HTMLInputElement;
-  const lightVal = document.getElementById("lightness-slider") as HTMLInputElement;
+  const lightVal = document.getElementById(
+    "lightness-slider",
+  ) as HTMLInputElement;
   const hue = Number(val.value);
   const lightness = Number(lightVal.value);
   current_line.color = `hsl(${hue}, 100%, ${lightness}%)`;
